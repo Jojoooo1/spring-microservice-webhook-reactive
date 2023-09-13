@@ -1,0 +1,9 @@
+rabbitmq:
+  listeners:
+    webhook:
+      queue: webhook
+  publishers:
+    webhook:
+      exchange: outbound
+      routingkey: to_outbound_webhook
+      queue: webhook

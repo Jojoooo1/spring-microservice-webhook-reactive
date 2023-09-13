@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Docker has built-in logging driver for Fluentd which is very convenient for applications running on Kubernetes.
+  Logs are directly shipped to Fluentd service from STDOUT and no additional logs file or persistent storage is required
+-->
+<configuration>
+
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+  <springProfile name="!json-logs">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="json-logs">
+    <appender name="json" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+        <providers>
+          <timestamp>
+            <timeZone>America/Sao_Paulo</timeZone>
+          </timestamp>
+          <pattern>
+            <pattern>
+              {
+              "level": "%level",
+              "message": "%message",
+              "traceId": "%mdc{traceId}",
+              "spanId": "%mdc{spanId}",
+              "logger": "%logger",
+              "thread": "%thread"
+              }
+            </pattern>
+          </pattern>
+          <stackTrace>
+            <fieldName>stackTrace</fieldName>
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+              <rootCauseFirst>true</rootCauseFirst>
+            </throwableConverter>
+          </stackTrace>
+        </providers>
+      </encoder>
+    </appender>
+
+    <root level="INFO">
+      <appender-ref ref="json"/>
+    </root>
+
+  </springProfile>
+
+</configuration>

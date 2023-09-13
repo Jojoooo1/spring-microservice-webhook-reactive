@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  webhook:
+    container_name: webhook
+    hostname: webhook
+    image: maven:3.9.3-eclipse-temurin-17-focal
+    user: '1000'
+    command: [ 'mvn', 'clean', 'spring-boot:run', '-Dspring.profiles.active=dev', '-Duser.home=/var/maven' ]
+    ports:
+      - 8081:8081
+    environment:
+      MAVEN_CONFIG: /var/maven/.m2
+    volumes:
+      - .:/usr/src/workdir:rw
+      - ~/.m2:/var/maven/.m2
+    working_dir: /usr/src/workdir
+    healthcheck:
+      test: [ 'CMD-SHELL', 'curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1' ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbitmq
+    image: bitnami/rabbitmq:3.12.4-debian-11-r8
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 20s
+      timeout: 10s
+      retries: 10
+    environment:
+      RABBITMQ_LOAD_DEFINITIONS: "true"
+      # definition is set with -> user: password
+      RABBITMQ_DEFINITIONS_FILE: /etc/rabbitmq/definitions.json
+      RABBITMQ_PLUGINS: rabbitmq_management rabbitmq_shovel rabbitmq_shovel_management rabbitmq_delayed_message_exchange
+      RABBITMQ_COMMUNITY_PLUGINS: https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v3.12.0/rabbitmq_delayed_message_exchange-3.12.0.ez
+    volumes:
+      - ./scripts/config/rabbitmq-definition.json:/etc/rabbitmq/definitions.json
+      - webhook_rabbitmq:/bitnami/rabbitmq/mnesia
+
+volumes:
+  webhook_rabbitmq:
+    name: webhook_rabbitmq
+

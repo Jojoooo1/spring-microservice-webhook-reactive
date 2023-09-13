@@ -1,0 +1,59 @@
+http:
+  clients:
+    default-timeout: ${HTTP_CLIENTS_DEFAULT_TIMEOUT:5000}
+
+rabbitmq:
+  host: ${RABBITMQ_HOST}
+  port: ${RABBITMQ_PORT}
+  username: ${RABBITMQ_USERNAME}
+  password: ${RABBITMQ_PASSWORD}
+  prefetch-count: ${RABBITMQ_LISTENERS_WEBHOOK_PREFETCH_COUNT:100}
+  listeners:
+    webhook:
+      queue: ${RABBITMQ_LISTENERS_WEBHOOK_QUEUE}
+  publishers:
+    webhook:
+      max-retry: ${RABBITMQ_LISTENERS_WEBHOOK_MAX_RETRY:1}
+      min-retry-delay: ${RABBITMQ_LISTENERS_WEBHOOK_RETRY_DELAY:3000}
+      max-retry-delay: ${RABBITMQ_LISTENERS_WEBHOOK_RETRY_DELAY:5000}
+      exchange: ${RABBITMQ_PUBLISHERS_WEBHOOK_EXCHANGE}
+      routingkey: ${RABBITMQ_PUBLISHERS_WEBHOOK_ROUTING_KEY}
+      queue: ${RABBITMQ_PUBLISHERS_WEBHOOK_QUEUE_KEY}
+
+management:
+  server:
+    port: 8081 # change this in production
+  endpoints:
+    web:
+      exposure:
+        include: info, health, prometheus, metrics, preStopHook
+  endpoint:
+    health:
+      probes:
+        enabled: true
+        add-additional-paths: true
+    metrics:
+      distribution:
+        percentiles-histogram:
+          http:
+            server:
+              requests: true
+
+spring:
+  application:
+    name: service-webhook
+  profiles:
+    active: "@spring.profiles.active@" # Allow to transfer maven profile to application
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    prefetch: ${SPRING_RABBITMQ_LISTENER_PREFETCH:100} # Maximum number of unacknowledged messages that can be outstanding at each consumer.
+
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  port: 8081
+  shutdown: graceful

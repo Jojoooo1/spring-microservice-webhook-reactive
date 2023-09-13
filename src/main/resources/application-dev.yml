@@ -1,0 +1,21 @@
+rabbitmq:
+  host: localhost
+  port: 5672
+  username: user
+  password: password
+  listeners:
+    webhook:
+      queue: webhook
+  publishers:
+    webhook:
+      exchange: outbound
+      routingkey: to_outbound_webhook
+      queue: webhook
+
+logging:
+  pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  level:
+    reactor:
+      netty:
+        http:
+          client: error
