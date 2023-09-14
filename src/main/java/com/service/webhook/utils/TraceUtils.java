@@ -2,12 +2,10 @@ package com.service.webhook.utils;
 
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 @UtilityClass
-@RequiredArgsConstructor
 public class TraceUtils {
 
   public static String getTrace(final Tracer tracer) {
