@@ -4,21 +4,25 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 
 @Slf4j
+@UtilityClass
 public class RabbitMQUtils {
 
   public static final String RETRY_HEADER = "x-retry-count";
   public static final String DELAY_HEADER = "x-delay";
   public static final String URL_HEADER = "url";
 
+  public static final Random random = new Random();
+
   public static String getUrl(final Message<LinkedHashMap<String, Object>> message) {
     return (String) message.getHeaders().get(URL_HEADER);
   }
 
-  public static HashMap<String, Object> getHeaders(
+  public static Map<String, Object> getHeaders(
       final Message<LinkedHashMap<String, Object>> message) {
 
     final HashMap<String, Object> headers = new HashMap<>();
@@ -39,7 +43,6 @@ public class RabbitMQUtils {
   }
 
   public static Integer getRandom(final int min, final int max) {
-    final Random random = new Random();
     return random.ints(min, max).findFirst().getAsInt();
   }
 }
