@@ -9,8 +9,8 @@ import com.service.webhook.utils.RabbitMQUtils;
 import com.service.webhook.utils.WebClientUtils;
 import io.netty.handler.ssl.SslClosedEngineException;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -46,7 +46,7 @@ public class WebhookHttpClient {
       final String url, final Message<LinkedHashMap<String, Object>> message) {
 
     final String requestBody = JsonUtils.serialize(message.getPayload());
-    final HashMap<String, Object> headers = RabbitMQUtils.getHeaders(message);
+    final Map<String, Object> headers = RabbitMQUtils.getHeaders(message);
     final Integer retryCount = RabbitMQUtils.getRetryCount(headers);
 
     log.info("HTTP_REQUEST[webhook] retryCount[{}] url[{}] body[{}]", retryCount, url, requestBody);
