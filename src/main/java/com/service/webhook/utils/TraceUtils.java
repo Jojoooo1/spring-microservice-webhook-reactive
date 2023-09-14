@@ -3,10 +3,10 @@ package com.service.webhook.utils;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
-@Component
+@UtilityClass
 @RequiredArgsConstructor
 public class TraceUtils {
 

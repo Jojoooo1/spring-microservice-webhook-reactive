@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 
 @Slf4j
+@UtilityClass
 public class RabbitMQUtils {
 
   public static final String RETRY_HEADER = "x-retry-count";
@@ -20,7 +22,7 @@ public class RabbitMQUtils {
     return (String) message.getHeaders().get(URL_HEADER);
   }
 
-  public static HashMap<String, Object> getHeaders(
+  public static Map<String, Object> getHeaders(
       final Message<LinkedHashMap<String, Object>> message) {
 
     final HashMap<String, Object> headers = new HashMap<>();

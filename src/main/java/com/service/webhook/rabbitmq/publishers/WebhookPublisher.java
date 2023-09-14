@@ -8,7 +8,6 @@ import com.service.webhook.utils.RabbitMQUtils;
 import com.service.webhook.utils.TraceUtils;
 import io.micrometer.tracing.Tracer;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,9 +53,7 @@ public class WebhookPublisher {
   private final Tracer tracer;
 
   public void publish(
-      final String url,
-      final Map<String, Object> headers,
-      final LinkedHashMap<String, Object> payload) {
+      final String url, final Map<String, Object> headers, final Map<String, Object> payload) {
     try {
 
       final Integer retryCount = RabbitMQUtils.getRetryCount(headers);
