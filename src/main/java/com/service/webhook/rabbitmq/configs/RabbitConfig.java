@@ -46,7 +46,7 @@ public class RabbitConfig {
   }
 
   @Bean(name = RABBIT_WEBHOOK_CONTAINER_FACTORY)
-  public DirectRabbitListenerContainerFactory WebhookContainerFactory() {
+  public DirectRabbitListenerContainerFactory webhookContainerFactory() {
     final DirectRabbitListenerContainerFactory factory = new DirectRabbitListenerContainerFactory();
     factory.setConnectionFactory(this.connectionFactory("microservice-webhook-listener"));
     factory.setMessageConverter(new Jackson2JsonMessageConverter());
