@@ -1,8 +1,8 @@
 package com.service.webhook.rabbitmq.publishers;
 
+import static com.service.webhook.constants.AppConstants.TRACE_ID_LOG;
 import static java.lang.String.format;
 
-import com.service.webhook.constants.AppConstants;
 import com.service.webhook.utils.JsonUtils;
 import com.service.webhook.utils.RabbitMQUtils;
 import com.service.webhook.utils.TraceUtils;
@@ -54,8 +54,10 @@ public class WebhookPublisher {
 
   public void publish(
       final String url, final Map<String, Object> headers, final Map<String, Object> payload) {
+
     try {
 
+      final String msg = JsonUtils.serialize(payload);
       final Integer retryCount = RabbitMQUtils.getRetryCount(headers);
 
       if (retryCount > (this.maxRetry)) {
@@ -82,10 +84,7 @@ public class WebhookPublisher {
           newRetryCount,
           newDelay);
 
-      final Message message =
-          MessageBuilder.withBody(JsonUtils.serialize(payload).getBytes())
-              .andProperties(props)
-              .build();
+      final Message message = MessageBuilder.withBody(msg.getBytes()).andProperties(props).build();
 
       this.amqpTemplate.convertAndSend(this.exchange, this.routingKey, message);
     } catch (final AmqpException ex) {
@@ -101,6 +100,6 @@ public class WebhookPublisher {
       final Map<String, Object> headers, final Integer newRetryCount, final Integer newDelay) {
     headers.put(RabbitMQUtils.RETRY_HEADER, Integer.toString(newRetryCount));
     headers.put(RabbitMQUtils.DELAY_HEADER, newDelay.toString());
-    headers.put(AppConstants.TRACE_ID_LOG, TraceUtils.getTrace(this.tracer));
+    headers.put(TRACE_ID_LOG, TraceUtils.getTrace(this.tracer));
   }
 }
