@@ -56,7 +56,7 @@ public class WebhookHttpClient {
      *
      * Important limitation:
      * For unknown reason Hooks.enableAutomaticContextPropagation() does not propagate the traces
-     * downstream, so we are unable to follow retried message and success response logs by trace_id.
+     * to downstream Mono.fromRunnable
      * It was originally working with sleuth.
      * */
     return this.webClient
