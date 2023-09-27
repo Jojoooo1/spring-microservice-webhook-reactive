@@ -2,7 +2,7 @@
 
 Dependencies:
 
-* OpenJDK Java version >= 17
+* OpenJDK Java version >= 21
 * [Docker](https://www.docker.com)
 * [Docker Compose](https://docs.docker.com/compose/)
 * [Maven](https://maven.apache.org/)
