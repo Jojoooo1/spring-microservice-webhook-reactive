@@ -37,9 +37,10 @@ public class WebhookHttpClient {
   @Autowired
   public WebhookHttpClient(
       @Value("${http.clients.default-timeout}") final Integer timeOut,
-      final WebhookPublisher webhookPublisher) {
+      final WebhookPublisher webhookPublisher,
+      final WebClient.Builder builder) {
     this.webhookPublisher = webhookPublisher;
-    this.webClient = WebClientUtils.createWebClient(timeOut, null);
+    this.webClient = WebClientUtils.createWebClient(builder, timeOut, null);
   }
 
   public Mono<Void> sendWebhook(

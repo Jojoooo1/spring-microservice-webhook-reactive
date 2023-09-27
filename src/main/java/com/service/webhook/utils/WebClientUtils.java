@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.Builder;
 import reactor.netty.http.client.HttpClient;
 
 @UtilityClass
@@ -27,19 +28,20 @@ public class WebClientUtils {
   }
 
   public static WebClient createWebClient(
-      final int timeOutInMs, final ExchangeFilterFunction errorHandler) {
+      final Builder builder, final int timeOutInMs, final ExchangeFilterFunction errorHandler) {
 
-    final WebClient.Builder builder =
-        WebClient.builder()
+    final WebClient.Builder webClientBuilder =
+        builder
             .clientConnector(
                 new ReactorClientHttpConnector(createHttpClientWithProvider(timeOutInMs)))
             .defaultHeaders(defaultHttpHeaders());
 
     if (errorHandler != null) {
-      builder.filters(exchangeFilterFunctions -> exchangeFilterFunctions.add(errorHandler));
+      webClientBuilder.filters(
+          exchangeFilterFunctions -> exchangeFilterFunctions.add(errorHandler));
     }
 
-    return builder.build();
+    return webClientBuilder.build();
   }
 
   public static HttpClient createHttpClientWithProvider(final int timeOutInMs) {
