@@ -28,7 +28,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3.13.0
         with:
-          distribution: 'iberica'
+          distribution: 'liberica'
           java-version: '21'
           cache: 'maven'
 
@@ -50,7 +50,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3.13.0
         with:
-          distribution: 'iberica'
+          distribution: 'liberica'
           java-version: '21'
           cache: 'maven'
 
@@ -143,7 +143,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3.13.0
         with:
-          distribution: 'iberica'
+          distribution: 'liberica'
           java-version: '21'
           cache: 'maven'
 
@@ -180,7 +180,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3.13.0
         with:
-          distribution: 'iberica'
+          distribution: 'liberica'
           java-version: '21'
           cache: 'maven'
 
