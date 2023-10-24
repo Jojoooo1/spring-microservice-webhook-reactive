@@ -24,7 +24,7 @@
     <logstash.version>7.4</logstash.version>
     
     <!-- Metrics -->
-    <opentelemetry-exporter-otlp.version>1.30.1</opentelemetry-exporter-otlp.version>
+    <opentelemetry-exporter-otlp.version>1.31.0</opentelemetry-exporter-otlp.version>
     
     <!-- Utilities -->
     <apache-commons-text.version>1.10.0</apache-commons-text.version>
