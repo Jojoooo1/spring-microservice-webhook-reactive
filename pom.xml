@@ -27,7 +27,7 @@
     <opentelemetry-exporter-otlp.version>1.30.1</opentelemetry-exporter-otlp.version>
     
     <!-- Utilities -->
-    <apache-commons-text.version>1.10.0</apache-commons-text.version>
+    <apache-commons-text.version>1.11.0</apache-commons-text.version>
     
     <!-- Development-->
     <git-code-format-maven-plugin.version>5.1</git-code-format-maven-plugin.version>
