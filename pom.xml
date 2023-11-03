@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.0-RC1</version>
+    <version>3.2.0-RC2</version>
     <relativePath/>
   </parent>
   
@@ -27,7 +27,7 @@
     <opentelemetry-exporter-otlp.version>1.31.0</opentelemetry-exporter-otlp.version>
     
     <!-- Utilities -->
-    <apache-commons-text.version>1.10.0</apache-commons-text.version>
+    <apache-commons-text.version>1.11.0</apache-commons-text.version>
     
     <!-- Development-->
     <git-code-format-maven-plugin.version>5.1</git-code-format-maven-plugin.version>
