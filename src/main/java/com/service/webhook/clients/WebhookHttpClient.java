@@ -58,11 +58,9 @@ public class WebhookHttpClient {
     log.info("HTTP[webhook] retryCount[{}] url[{}] body[{}]", retryCount, url, requestBody);
 
     /*
-     *
-     * Important limitation:
-     * For unknown reason Hooks.enableAutomaticContextPropagation() does not propagate the traces
-     * to downstream Mono
-     * It was originally working with sleuth.
+     * Important:
+     * Needs to use Micrometer.observation to propagate context:
+     * https://github.com/spring-projects/spring-amqp/issues/2560
      * */
     return this.webClient
         .post()
@@ -73,8 +71,6 @@ public class WebhookHttpClient {
                 headers.forEach((k, v) -> httpHeaders.add(k, v != null ? v.toString() : null)))
         .bodyValue(requestBody)
         .exchangeToMono(this::defaultResponseHandler)
-        // Necessary or context is lost downstream
-        .tap(Micrometer.observation(this.registry))
         .retryWhen(this.defaultRetryHandler())
         .onErrorResume(
             ex -> {
@@ -85,7 +81,7 @@ public class WebhookHttpClient {
                   .subscribeOn(Schedulers.boundedElastic())
                   .then();
             })
-        // Necessary or context is lost downstream
+        // Necessary or context will be lost
         .tap(Micrometer.observation(this.registry));
   }
 
