@@ -67,6 +67,7 @@ public class WebhookHttpClient {
             httpHeaders ->
                 headers.forEach((k, v) -> httpHeaders.add(k, v != null ? v.toString() : null)))
         .bodyValue(requestBody)
+        // Context is lost downstream
         .exchangeToMono(this::defaultResponseHandler)
         .retryWhen(this.defaultRetryHandler())
         .onErrorResume(
