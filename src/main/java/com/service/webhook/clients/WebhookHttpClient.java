@@ -7,6 +7,7 @@ import com.service.webhook.rabbitmq.publishers.WebhookPublisher;
 import com.service.webhook.utils.JsonUtils;
 import com.service.webhook.utils.RabbitMQUtils;
 import com.service.webhook.utils.WebClientUtils;
+import io.micrometer.observation.ObservationRegistry;
 import io.netty.handler.ssl.SslClosedEngineException;
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -22,6 +23,7 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.PrematureCloseException;
@@ -33,14 +35,17 @@ public class WebhookHttpClient {
 
   private final WebClient webClient;
   private final WebhookPublisher webhookPublisher;
+  private final ObservationRegistry registry;
 
   @Autowired
   public WebhookHttpClient(
       @Value("${http.clients.default-timeout}") final Integer timeOut,
       final WebhookPublisher webhookPublisher,
-      final WebClient.Builder builder) {
+      final WebClient.Builder builder,
+      final ObservationRegistry registry) {
     this.webhookPublisher = webhookPublisher;
     this.webClient = WebClientUtils.createWebClient(builder, timeOut, null);
+    this.registry = registry;
   }
 
   public Mono<Void> sendWebhook(
@@ -67,8 +72,9 @@ public class WebhookHttpClient {
             httpHeaders ->
                 headers.forEach((k, v) -> httpHeaders.add(k, v != null ? v.toString() : null)))
         .bodyValue(requestBody)
-        // Context is lost downstream
         .exchangeToMono(this::defaultResponseHandler)
+        // Necessary or context is lost downstream
+        .tap(Micrometer.observation(this.registry))
         .retryWhen(this.defaultRetryHandler())
         .onErrorResume(
             ex -> {
@@ -78,7 +84,9 @@ public class WebhookHttpClient {
                       () -> this.webhookPublisher.publish(url, headers, message.getPayload()))
                   .subscribeOn(Schedulers.boundedElastic())
                   .then();
-            });
+            })
+        // Necessary or context is lost downstream
+        .tap(Micrometer.observation(this.registry));
   }
 
   private Mono<Void> defaultResponseHandler(final ClientResponse response) {

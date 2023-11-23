@@ -87,6 +87,11 @@
     
     <!-- Utilities -->
     <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core-micrometer</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+    <dependency>
       <artifactId>commons-text</artifactId>
       <groupId>org.apache.commons</groupId>
       <version>${apache-commons-text.version}</version>
