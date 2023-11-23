@@ -32,18 +32,30 @@ management:
       probes:
         enabled: true
         add-additional-paths: true
-    metrics:
-      distribution:
-        percentiles-histogram:
-          http:
-            server:
-              requests: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+  tracing:
+    sampling:
+      probability: 0
+  #  otlp:
+  #    tracing:
+  #      endpoint:
 
 spring:
   application:
     name: service-webhook
-  profiles:
-    active: "@spring.profiles.active@" # Allow to transfer maven profile to application
+  main:
+    keep-alive: true # ensures JVM is kept alive, even if all threads are virtual threads https://docs.spring.io/spring-boot/docs/3.2.0-RC2/reference/htmlsingle/#features.spring-application.virtual-threads
+  reactor:
+    context-propagation: auto # automatically propagates trace and span in reactive pipelines.
+  threads:
+    virtual:
+      enabled: true
+
   rabbitmq:
     host: ${RABBITMQ_HOST}
     port: ${RABBITMQ_PORT:5672}
@@ -57,3 +69,7 @@ spring:
 server:
   port: 8081
   shutdown: graceful
+  tomcat:
+    # enables tomcat metrics
+    mbeanregistry:
+      enabled: true

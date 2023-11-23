@@ -16,7 +16,8 @@ import org.springframework.retry.support.RetryTemplate;
 @Configuration
 public class RabbitConfig {
 
-  public static final String RABBIT_WEBHOOK_CONTAINER_FACTORY = "WebhookContainerFactory";
+  public static final String RABBIT_WEBHOOK_LISTENER_FACTORY = "WebhookListener";
+  public static final String RABBIT_WEBHOOK_PUBLISHER = "WebhookPublisher";
 
   @Value("${rabbitmq.host}")
   private String host;
@@ -45,7 +46,7 @@ public class RabbitConfig {
     return connectionFactory;
   }
 
-  @Bean(name = RABBIT_WEBHOOK_CONTAINER_FACTORY)
+  @Bean(name = RABBIT_WEBHOOK_LISTENER_FACTORY)
   public DirectRabbitListenerContainerFactory webhookContainerFactory() {
     final DirectRabbitListenerContainerFactory factory = new DirectRabbitListenerContainerFactory();
     factory.setConnectionFactory(this.connectionFactory("microservice-webhook-listener"));
@@ -60,7 +61,7 @@ public class RabbitConfig {
     return factory;
   }
 
-  @Bean
+  @Bean(name = RABBIT_WEBHOOK_PUBLISHER)
   public RabbitTemplate rabbitTemplate() {
     final RabbitTemplate factory =
         new RabbitTemplate(this.connectionFactory("microservice-webhook-publisher"));

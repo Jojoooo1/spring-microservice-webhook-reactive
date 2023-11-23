@@ -50,7 +50,7 @@ public class WebhookHttpClient {
     final Map<String, Object> headers = RabbitMQUtils.getHeaders(message);
     final Integer retryCount = RabbitMQUtils.getRetryCount(headers);
 
-    log.info("HTTP_REQUEST[webhook] retryCount[{}] url[{}] body[{}]", retryCount, url, requestBody);
+    log.info("HTTP[webhook] retryCount[{}] url[{}] body[{}]", retryCount, url, requestBody);
 
     /*
      *
@@ -72,8 +72,7 @@ public class WebhookHttpClient {
         .onErrorResume(
             ex -> {
               log.warn(
-                  "HTTP_ERROR[webhook] errorDetails['%s']".formatted(getRootCauseErrorMessage(ex)),
-                  ex);
+                  "HTTP[webhook] errorDetails['%s']".formatted(getRootCauseErrorMessage(ex)), ex);
               return Mono.fromRunnable(
                       () -> this.webhookPublisher.publish(url, headers, message.getPayload()))
                   .subscribeOn(Schedulers.boundedElastic())
@@ -92,13 +91,10 @@ public class WebhookHttpClient {
         .map(
             body -> {
               if (status.is2xxSuccessful()) {
-                log.info("HTTP[RESPONSE] '{}'", body);
+                log.info("HTTP[webhook] response '{}'", body);
               } else {
                 if (status.is4xxClientError()) {
-                  log.info(
-                      "HTTP_CLIENT_ERROR[webhook] skipping retry. status '{}' body '{}'",
-                      status,
-                      body);
+                  log.info("HTTP[webhook] 4xx skipping retry. status '{}' body '{}'", status, body);
                 } else {
                   throw new WebhookRetriableException(status, body);
                 }
