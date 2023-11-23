@@ -56,7 +56,7 @@ public class WebhookHttpClient {
      *
      * Important limitation:
      * For unknown reason Hooks.enableAutomaticContextPropagation() does not propagate the traces
-     * to downstream Mono.fromRunnable
+     * to downstream Mono
      * It was originally working with sleuth.
      * */
     return this.webClient
