@@ -82,7 +82,8 @@ public class WebhookHttpClient {
                   .then();
             })
         // Necessary or context will be lost
-        .tap(Micrometer.observation(this.registry));
+        .tap(Micrometer.observation(this.registry))
+        .contextCapture();
   }
 
   private Mono<Void> defaultResponseHandler(final ClientResponse response) {
