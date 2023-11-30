@@ -7,6 +7,7 @@ import com.service.webhook.rabbitmq.publishers.WebhookPublisher;
 import com.service.webhook.utils.JsonUtils;
 import com.service.webhook.utils.RabbitMQUtils;
 import com.service.webhook.utils.WebClientUtils;
+import io.micrometer.observation.ObservationRegistry;
 import io.netty.handler.ssl.SslClosedEngineException;
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -22,6 +23,7 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.PrematureCloseException;
@@ -33,14 +35,17 @@ public class WebhookHttpClient {
 
   private final WebClient webClient;
   private final WebhookPublisher webhookPublisher;
+  private final ObservationRegistry registry;
 
   @Autowired
   public WebhookHttpClient(
       @Value("${http.clients.default-timeout}") final Integer timeOut,
       final WebhookPublisher webhookPublisher,
-      final WebClient.Builder builder) {
+      final WebClient.Builder builder,
+      final ObservationRegistry registry) {
     this.webhookPublisher = webhookPublisher;
     this.webClient = WebClientUtils.createWebClient(builder, timeOut, null);
+    this.registry = registry;
   }
 
   public Mono<Void> sendWebhook(
@@ -50,14 +55,12 @@ public class WebhookHttpClient {
     final Map<String, Object> headers = RabbitMQUtils.getHeaders(message);
     final Integer retryCount = RabbitMQUtils.getRetryCount(headers);
 
-    log.info("HTTP_REQUEST[webhook] retryCount[{}] url[{}] body[{}]", retryCount, url, requestBody);
+    log.info("HTTP[webhook] retryCount[{}] url[{}] body[{}]", retryCount, url, requestBody);
 
     /*
-     *
-     * Important limitation:
-     * For unknown reason Hooks.enableAutomaticContextPropagation() does not propagate the traces
-     * to downstream Mono.fromRunnable
-     * It was originally working with sleuth.
+     * Important:
+     * Needs to use Micrometer.observation to propagate context:
+     * https://github.com/spring-projects/spring-amqp/issues/2560
      * */
     return this.webClient
         .post()
@@ -72,13 +75,15 @@ public class WebhookHttpClient {
         .onErrorResume(
             ex -> {
               log.warn(
-                  "HTTP_ERROR[webhook] errorDetails['%s']".formatted(getRootCauseErrorMessage(ex)),
-                  ex);
+                  "HTTP[webhook] errorDetails['%s']".formatted(getRootCauseErrorMessage(ex)), ex);
               return Mono.fromRunnable(
                       () -> this.webhookPublisher.publish(url, headers, message.getPayload()))
                   .subscribeOn(Schedulers.boundedElastic())
                   .then();
-            });
+            })
+        // Necessary or context will be lost
+        .tap(Micrometer.observation(this.registry))
+        .contextCapture();
   }
 
   private Mono<Void> defaultResponseHandler(final ClientResponse response) {
@@ -92,13 +97,10 @@ public class WebhookHttpClient {
         .map(
             body -> {
               if (status.is2xxSuccessful()) {
-                log.info("HTTP[RESPONSE] '{}'", body);
+                log.info("HTTP[webhook] response '{}'", body);
               } else {
                 if (status.is4xxClientError()) {
-                  log.info(
-                      "HTTP_CLIENT_ERROR[webhook] skipping retry. status '{}' body '{}'",
-                      status,
-                      body);
+                  log.info("HTTP[webhook] 4xx skipping retry. status '{}' body '{}'", status, body);
                 } else {
                   throw new WebhookRetriableException(status, body);
                 }

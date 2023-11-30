@@ -24,7 +24,7 @@ public class WebhookListener {
 
   @RabbitListener(
       id = WEBHOOK_LISTENER_ID,
-      containerFactory = RabbitConfig.RABBIT_WEBHOOK_CONTAINER_FACTORY,
+      containerFactory = RabbitConfig.RABBIT_WEBHOOK_LISTENER_FACTORY,
       queues = "${rabbitmq.listeners.webhook.queue}")
   public Mono<Void> process(final Message<LinkedHashMap<String, Object>> message) {
     try {

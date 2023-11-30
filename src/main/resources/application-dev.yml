@@ -11,11 +11,3 @@ rabbitmq:
       exchange: outbound
       routingkey: to_outbound_webhook
       queue: webhook
-
-logging:
-  #  pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
-  level:
-    reactor:
-      netty:
-        http:
-          client: error
