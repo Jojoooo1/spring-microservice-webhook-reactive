@@ -21,7 +21,7 @@
     <java.version>21</java.version>
     
     <!-- Logging -->
-    <logstash.version>7.4</logstash.version>
+    <logstash.version>8.0</logstash.version>
     
     <!-- Metrics -->
     <opentelemetry-exporter-otlp.version>1.32.0</opentelemetry-exporter-otlp.version>
